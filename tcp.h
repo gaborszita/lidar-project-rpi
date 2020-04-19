@@ -22,7 +22,7 @@ int Connect();
 int tcpmsgreceive(int client);
 void updaterecvbuffer(int client);
 bool tcpchangebuffer(char msgsearch[], int client);
-int checkforrecv(int client);
+int checkforrecv(int client, AdafruitMotorsDriver *motors);
 
 #define DEAFULT_BUFLEN 100000
 

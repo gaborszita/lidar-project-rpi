@@ -19,6 +19,31 @@
 */ 
 
 
-void motorControl(int speeds[4]);
-void Mhatreset();
-bool isRobotMoving();
+//void motorControl(int speeds[4]);
+//void Mhatreset();
+//bool isRobotMoving();
+#include "AdafruitStepperMotorHAT_CPP/Adafruit_MotorHAT.h"
+
+class AdafruitMotorsDriver{
+    private: 
+        Adafruit_MotorHAT hat;
+        Adafruit_DCMotor& M1= hat.getDC(1);
+        Adafruit_DCMotor& M2= hat.getDC(2);
+        Adafruit_DCMotor& M3= hat.getDC(3);
+        Adafruit_DCMotor& M4= hat.getDC(4);
+
+    private:
+        bool robotmoving=false;
+
+    public:
+        bool isRobotMoving();
+
+    private:
+        void setMotorDir(int *speed, Adafruit_DCMotor& Motor);
+
+    public:
+        void motorControl(int speeds[4]);
+
+    public:
+        void Mhatreset();
+};

@@ -25,8 +25,8 @@
 
 #define SOCKET_ERROR -1
 
-#include "tcp.h"
 #include "motors.h"
+#include "tcp.h"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -147,7 +147,7 @@ bool tcpchangebuffer(char msgsearch[], int client)
 	}
 }
 
-int checkforrecv(int client){
+int checkforrecv(int client, AdafruitMotorsDriver *motors){
     
     if (tcpchangebuffer((char*)"exitprogram", client))
 	{
@@ -175,7 +175,7 @@ int checkforrecv(int client){
         //printf("%d\n", speed);
 		recvbufpointer += strlen(recvbufpointer) + 1;
 
-        motorControl(speeds);
+        motors->motorControl(speeds);
 
         return 4;
 	}

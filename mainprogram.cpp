@@ -39,7 +39,7 @@
 
 //#include <sys/time.h>
 //#include <time.h>
-
+AdafruitMotorsDriver motors;
 
 int main (int, const char **)
 {
@@ -50,9 +50,6 @@ int main (int, const char **)
     char buf[100000];
     char* bufptr;
     bool failsysonline = false;
-    //char strsend[1000];
-    //int buffer[1024];
-    //int lidarindexcount;
     int socket = Connect();
     bufptr = buf;
     sprintf(bufptr, "robotbox");
@@ -60,8 +57,6 @@ int main (int, const char **)
     sprintf(bufptr, "host ONLINE");
     bufptr+=strlen(bufptr)+1;
     send(socket, buf, bufptr-buf, 0);
-
-    //open uart serial device
 
     float speed;
     int laserdataX[2][360], laserdataY[2][360], Ldeg[2][360];
@@ -111,7 +106,6 @@ int main (int, const char **)
         bufptr+=strlen(bufptr)+1;
         sprintf(bufptr, "systems initailized. all systems ONLINE. proceeding.");
         bufptr+=strlen(bufptr)+1;
-        //printf("u");
         send(socket, buf, bufptr-buf, 0);
     }
     else{
@@ -120,14 +114,12 @@ int main (int, const char **)
         bufptr+=strlen(bufptr)+1;
         sprintf(bufptr, "some systems detected OFFLINE. program execution may fail.");
         bufptr+=strlen(bufptr)+1;
-        //printf("u");
         send(socket, buf, bufptr-buf, 0);
     }
 
     while (true) {
-        //speed = static_cast<int>(getLidarFreq());
-        speed = getLidarFreq();
         //send speed to computer
+        speed = getLidarFreq();
         bufptr = buf;
         sprintf(bufptr, "rpm");
         bufptr+=strlen(bufptr)+1;
@@ -167,7 +159,7 @@ int main (int, const char **)
 
         //countXY(laserdataX[currentWriteLData == 0 ? 0 : 1], laserdataY[currentWriteLData == 0 ? 0 : 1], Ldeg[currentWriteLData == 0 ? 0 : 1], laserdataX[currentWriteLData == 0 ? 1 : 0], laserdataY[currentWriteLData == 0 ? 1 : 0], Ldeg[currentWriteLData == 0 ? 1 : 0], &x, &y, &heading, socket, buf, bufptr);
         readMPU6050(&mpu6050data);
-        if (isRobotMoving()) {
+        if (motors.isRobotMoving()) {
             get_mouse_readings(&x, &y);
             heading+=mpu6050data.Gyro_z;
         }
@@ -186,13 +178,12 @@ int main (int, const char **)
         currentWriteLData = currentWriteLData == 0 ? 1 : 0;
         if (errno == EPIPE || errno == ENOBUFS) {
             printf("epipe\n");
-            //digitalWrite (23, LOW);
             closeLidar();
-            Mhatreset();
+            motors.Mhatreset();
             printf("done, exiting\n");
             exit(0);
         }
-        checkforrecv(socket);
+        checkforrecv(socket, &motors);
     }
     return 0;
 }
@@ -202,7 +193,7 @@ int main (int, const char **)
 void ctrl_c_handler(int s)
 {
     closeLidar();
-    Mhatreset();
+    motors.Mhatreset();
     std::cout << "exit successful!" << s << std::endl;
     exit(0);
 }

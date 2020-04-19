@@ -25,6 +25,7 @@
 #include "countXY.h"
 #include "rplidara1/rplidar_driver/lidardriver.h"
 #include "mpu6050_driver.h"
+#include "mouse/mousedriver.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,6 +68,7 @@ int main (int, const char **)
     int x=0, y=0;
     float heading=0;
     short int currentWriteLData=0; //Put 2 rounds together, 2 rounds make a successful 360 readigns. Int the first round are the odds bad readings, in the second are the even
+    mpu6050reads mpu6050data;
 
     MPU6050_Init();
     bufptr = buf; 
@@ -75,6 +77,15 @@ int main (int, const char **)
     sprintf(bufptr, "mpu6050 gyro ONLINE");
     bufptr+=strlen(bufptr)+1;
     send(socket, buf, bufptr-buf, 0);
+
+    mousethread_run(&heading);
+    bufptr = buf; 
+    sprintf(bufptr, "robotbox");
+    bufptr+=strlen(bufptr)+1;
+    sprintf(bufptr, "logitech laser mouse ONLINE");
+    bufptr+=strlen(bufptr)+1;
+    send(socket, buf, bufptr-buf, 0);
+
 
     if (setupLidar()==0){
         bufptr = buf; 
@@ -154,7 +165,12 @@ int main (int, const char **)
         }
         send(socket, buf, bufptr-buf, 0);
 
-        countXY(laserdataX[currentWriteLData == 0 ? 0 : 1], laserdataY[currentWriteLData == 0 ? 0 : 1], Ldeg[currentWriteLData == 0 ? 0 : 1], laserdataX[currentWriteLData == 0 ? 1 : 0], laserdataY[currentWriteLData == 0 ? 1 : 0], Ldeg[currentWriteLData == 0 ? 1 : 0], &x, &y, &heading, socket, buf, bufptr);
+        //countXY(laserdataX[currentWriteLData == 0 ? 0 : 1], laserdataY[currentWriteLData == 0 ? 0 : 1], Ldeg[currentWriteLData == 0 ? 0 : 1], laserdataX[currentWriteLData == 0 ? 1 : 0], laserdataY[currentWriteLData == 0 ? 1 : 0], Ldeg[currentWriteLData == 0 ? 1 : 0], &x, &y, &heading, socket, buf, bufptr);
+        readMPU6050(&mpu6050data);
+        if (isRobotMoving()) {
+            get_mouse_readings(&x, &y);
+            heading+=mpu6050data.Gyro_z;
+        }
 
         bufptr = buf;
         sprintf(bufptr, "xyupdate");

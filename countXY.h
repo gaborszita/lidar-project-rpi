@@ -20,13 +20,6 @@
 
 
 #define ARR_LEN 360
-
-int pointpairs(int LXold[], int LYold[], int corners1[], int corners1_len, int LXnew[], int LYnew[], int corners2[], int corners2_len, int pairs[ARR_LEN][2], const int maxlength);
-int split_merge(int Lszog[], int LX[], int LY[], int corners[]);
-int arcprocess(int LX[], int LY[], int arcgroups[ARR_LEN][2], int corner[], int lencorner, int groupindex);
-int arc(int Lszog[], int LX[], int LY[], int validarc[ARR_LEN][2]);
-void testmove(int x1[], int y1[], int x2[], int y2[], int xshft, int yshft, float ang, int* m, int* xshfttot, int* yshfttot, float* rottot, int n);
-int mismatch(int x1[], int y1[], int x2[], int y2[], int n);
 void countXY(int LXold[ARR_LEN], int LYold[ARR_LEN], int Lold[ARR_LEN], int LXnew[ARR_LEN], int LYnew[ARR_LEN], int Lnew[ARR_LEN], int* currentX, int* currentY, float* currentDEG, int socket, char buf[], char* bufptr);
 
 

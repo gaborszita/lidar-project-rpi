@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <wiringPi.h>
+#include <chrono>
 #include <wiringPiI2C.h>
 #include "mpu6050_driver.h"
 
@@ -38,13 +39,14 @@
 #define GYRO_ZOUT_H  0x47
 
 int fd;
+int timeold=0;
 
 void MPU6050_Init(){
 	fd = wiringPiI2CSetup(Device_Address);
 	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
 	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);	/* Write to power management register */
 	wiringPiI2CWriteReg8 (fd, CONFIG, 0);		/* Write to Configuration register */
-	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 24);	/* Write to Gyro Configuration register */
+	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 0);	/* Write to Gyro Configuration register */
 	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);	/*Write to interrupt enable register */
 
 	} 
@@ -63,13 +65,25 @@ void ms_delay(int val){
 }
 
 void readMPU6050(mpu6050reads *data){
-    data->Acc_x = read_raw_data(ACCEL_XOUT_H)/16384.0;
-	data->Acc_y = read_raw_data(ACCEL_YOUT_H)/16384.0;
-	data->Acc_z = read_raw_data(ACCEL_ZOUT_H)/16384.0;
+    int msnow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    int mschange;
+    if (timeold!=0) {
+        mschange = msnow-timeold;
+        timeold=msnow;
+    }
+    else{
+        mschange=0;
+        timeold=msnow;
+    }
+    float secchange = (float)mschange/1000;
+    //printf("old: %d, now: %d, mschg: %d, secchange: %f\n", timeold, msnow, mschange, secchange);
+    data->Acc_x = read_raw_data(ACCEL_XOUT_H)/16384.0*secchange;
+	data->Acc_y = read_raw_data(ACCEL_YOUT_H)/16384.0*secchange;
+	data->Acc_z = read_raw_data(ACCEL_ZOUT_H)/16384.0*secchange;
 	
-	data->Gyro_x = read_raw_data(GYRO_XOUT_H)/131.0;
-	data->Gyro_y = read_raw_data(GYRO_YOUT_H)/131.0;
-	data->Gyro_z = read_raw_data(GYRO_ZOUT_H)/131.0;
+	data->Gyro_x = read_raw_data(GYRO_XOUT_H)/131.0*secchange;
+	data->Gyro_y = read_raw_data(GYRO_YOUT_H)/131.0*secchange;
+	data->Gyro_z = read_raw_data(GYRO_ZOUT_H)/131.0*secchange;
 }
 
 #ifdef dddd

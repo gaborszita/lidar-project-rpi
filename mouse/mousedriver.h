@@ -20,4 +20,4 @@
 
 #define MOUSE_ALWAYS1_BIT_NOT1 5
 void get_mouse_readings(int *mx, int *my);
-int mousethread_run();
+int mousethread_run(float *heading);

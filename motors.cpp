@@ -21,6 +21,7 @@
 
 #include "AdafruitStepperMotorHAT_CPP/Adafruit_MotorHAT.h"
 #include "motors.h"
+//#include <stdio.h>
 
 Adafruit_MotorHAT hat;
 
@@ -28,6 +29,7 @@ Adafruit_DCMotor& M1= hat.getDC(1);
 Adafruit_DCMotor& M2= hat.getDC(2);
 Adafruit_DCMotor& M3= hat.getDC(3);
 Adafruit_DCMotor& M4= hat.getDC(4);
+bool robotmoving=false;
 
 void setMotorDir(int *speed, Adafruit_DCMotor& Motor){
     if (*speed<0) {
@@ -39,8 +41,12 @@ void setMotorDir(int *speed, Adafruit_DCMotor& Motor){
     }
 }
 
-void motorControl(int speeds[4]){
+bool isRobotMoving(){
+    return robotmoving;
+}
 
+void motorControl(int speeds[4]){
+    //printf("%d %d %d %d\n", speeds[0], speeds[1], speeds[2], speeds[3]);
     setMotorDir(&speeds[0], M1);
     M1.setSpeed(speeds[0]);
 
@@ -52,6 +58,12 @@ void motorControl(int speeds[4]){
 
     setMotorDir(&speeds[3], M4);
     M4.setSpeed(speeds[3]);
+    if (speeds[0]!=0 || speeds[1]!=0 || speeds[2]!=0 || speeds[3]!=0) {
+        robotmoving=true;
+    }
+    else{
+        robotmoving=false;
+    }
 }
 
 void Mhatreset(){

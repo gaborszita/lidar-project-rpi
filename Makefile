@@ -3,7 +3,7 @@ CXX=g++
 LD=g++
 CXXFLAGS= -c -Wall 
 LDFLAGS= -lwiringPi -lpthread -lcrypt -lrt -Wall -std=c++11
-OBJS=countXY.o tcp.o mainprogram.o motors.o lidardriver.o mpu6050_driver.o
+OBJS=countXY.o tcp.o mainprogram.o motors.o lidardriver.o mpu6050_driver.o mousedriver.o
 STATICOBJS=AdafruitStepperMotorHAT_CPP/AdafruitDCMotorHAT.a rplidara1/rplidar_sdk/sdk/output/Linux/Release/librplidar_sdk.a
 RM=rm -f
 TARGET=main
@@ -28,6 +28,9 @@ lidardriver.o: rplidara1/rplidar_driver/lidardriver.cpp rplidara1/rplidar_driver
 
 mpu6050_driver.o: gyro/mpu6050_driver.c gyro/mpu6050_driver.h
 	$(CXX) $(CXXFLAGS) gyro/mpu6050_driver.c
+
+mousedriver.o: mouse/mousedriver.c mouse/mousedriver.h
+	$(CXX) $(CXXFLAGS) mouse/mousedriver.c
 
 clean:
 	$(RM) $(OBJS)

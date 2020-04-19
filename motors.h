@@ -21,3 +21,4 @@
 
 void motorControl(int speeds[4]);
 void Mhatreset();
+bool isRobotMoving();

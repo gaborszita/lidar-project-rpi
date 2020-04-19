@@ -19,12 +19,6 @@
 */ 
 
 
-// robotMy7.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-//#pragma warning( disable : 26451 6031)
-
-
 
 #include "countXY.h"
 #include "gyro/mpu6050_driver.h"
@@ -39,8 +33,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+
+
 inline void rot(int* x, int* y, float ang, int n);
-int lastms = 0;
+int noisecorr(int Aptpairs[360][2], int Anumpairs, int Bptpairs[360][2], int Bnumpairs, int *cyclenumber);
+int pointpairs(int LXold[], int LYold[], int corners1[], int corners1_len, int LXnew[], int LYnew[], int corners2[], int corners2_len, int pairs[ARR_LEN][2], const int maxlength);
+int split_merge(int Lszog[], int LX[], int LY[], int corners[]);
+int arcprocess(int LX[], int LY[], int arcgroups[ARR_LEN][2], int corner[], int lencorner, int groupindex);
+int arc(int Lszog[], int LX[], int LY[], int validarc[ARR_LEN][2]);
+void testmove(int x1[], int y1[], int x2[], int y2[], int xshft, int yshft, float ang, int* m, int* xshfttot, int* yshfttot, float* rottot, int n);
+int mismatch(int x1[], int y1[], int x2[], int y2[], int n);
 
 void countXY(int LXold[ARR_LEN], int LYold[ARR_LEN], int Lold[ARR_LEN], int LXnew[ARR_LEN], int LYnew[ARR_LEN], int Lnew[ARR_LEN], int* currentX, int* currentY, float* currentDEG, int socket, char buf[], char* bufptr)
 {
@@ -56,101 +58,30 @@ void countXY(int LXold[ARR_LEN], int LYold[ARR_LEN], int Lold[ARR_LEN], int LXne
 	int n1, n2, num_pairs;
 	int m, m0, mold;
 	int xshfttot, yshfttot;
-    int ptpaird=3;
+    int ptpaird=8;
 	float rottot;
     struct mpu6050reads mpu6050data;
-    int gyrochange;
 
 	memset(x1, 0, sizeof(x1));
 	memset(y1, 0, sizeof(y1));
 	memset(x2, 0, sizeof(x2));
 	memset(y2, 0, sizeof(y2));
 
-    //printf("%f\n", mpu6050data.Gyro_z);
-    readMPU6050(&mpu6050data);  //read the gyro readings
-    //printf("%f\n", mpu6050data.Gyro_z);
-
 	n1 = split_merge(Lold, LXold, LYold, corners1);
 	n2 = split_merge(Lnew, LXnew, LYnew, corners2);
-
-    if (lastms==0) {
-        struct timespec spec;
-        long ms;
-
-        clock_gettime(CLOCK_REALTIME, &spec);
-
-        //s  = spec.tv_sec;
-        ms = round(spec.tv_nsec / 1.0e6); // Convert nanoseconds to milliseconds
-        if (ms > 999) {
-            //s++;
-            ms = 0;
-        }
-        lastms=ms;
-    }
-
-    // time stamp stuff
-    if (lastms!=0) {
-        struct timespec spec;
-        long ms;
-
-        clock_gettime(CLOCK_REALTIME, &spec);
-
-        //s  = spec.tv_sec;
-        ms = round(spec.tv_nsec / 1.0e6); // Convert nanoseconds to milliseconds
-        if (ms > 999) {
-            //s++;
-            ms = 0;
-        }
-        //end tt processing
-        int mschange = ms-lastms;
-        //printf("defag %f\n", mpu6050data.Gyro_z);
-        gyrochange = (mpu6050data.Gyro_z)*(mschange/1000);
-        //printf("ms %d\n", mschange);
-        //printf("g %d\n", gyrochange);
-
-        //ptpaird += gyrochange; 
-        lastms=ms;
-    }
+    //printf("c: %d %d\n", n1, n2);
+   
 
 	num_pairs = pointpairs(LXold, LYold, corners1, n1, LXnew, LYnew, corners2, n2, pairs, ptpaird);
+    //printf("ptp: %d\n", num_pairs);
 
-    /*if (num_pairs==0) {
-        printf("c1: %d\n", n1);
-        printf("c2: %d\n", n2);
-        FILE *f;
-        f = fopen("ctdbg1111.txt", "w");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d %d %d %d\n", i, LXnew[i], LYnew[i], Lnew[i]);
-        }
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d %d %d %d\n", i, LXold[i], LYold[i], Lold[i]);
-        }*/
-        /*fprintf(f, "LX\n");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d %d\n", LXold[i], LXnew[i]);
-        }
-        fprintf(f, "LY\n");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d %d\n", LYold[i], LYnew[i]);
-        }
-        fprintf(f, "L\n");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d %d\n", Lold[i], Lnew[i]);
-        }
-        fprintf(f, "LXnew\n");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d\n", LXnew[i]);
-        }
-        fprintf(f, "LYnew\n");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d\n", LYnew[i]);
-        }
-        fprintf(f, "Lnew\n");
-        for (int i=0; i<360; i++) {
-            fprintf(f, "%d\n", Lnew[i]);
-        }*/
-        //fclose(f);
-    //}
+    for (int k1 = 0; k1 < num_pairs; k1++)
+	{
+		x1[k1] = LXold[pairs[k1][0]];
+		y1[k1] = LYold[pairs[k1][0]];
+		x2[k1] = LXnew[pairs[k1][1]];
+		y2[k1] = LYnew[pairs[k1][1]];
+	}
 
     bufptr = buf;
     sprintf(bufptr, "xydebugcorners");
@@ -158,33 +89,20 @@ void countXY(int LXold[ARR_LEN], int LYold[ARR_LEN], int Lold[ARR_LEN], int LXne
     sprintf(bufptr, "%d", num_pairs);
     bufptr+=strlen(bufptr)+1;
     for (int i=0; i<num_pairs; i++) {
-        sprintf(bufptr, "%d", LXnew[pairs[i][0]]);
+        sprintf(bufptr, "%d", x1[i]);
         bufptr+=strlen(bufptr)+1;
-        sprintf(bufptr, "%d", LYnew[pairs[i][0]]);
+        sprintf(bufptr, "%d", y1[i]);
         bufptr+=strlen(bufptr)+1;
     }
     for (int i=0; i<num_pairs; i++) {
-        sprintf(bufptr, "%d", LXnew[pairs[i][1]]);
+        sprintf(bufptr, "%d", x2[i]);
         bufptr+=strlen(bufptr)+1;
-        sprintf(bufptr, "%d", LYnew[pairs[i][1]]);
+        sprintf(bufptr, "%d", y2[i]);
         bufptr+=strlen(bufptr)+1;
     }
     send(socket, buf, bufptr - buf, 0);
 
-	//num_pairs = 14;
-	for (int k1 = 0; k1 < num_pairs; k1++)
-	{
-		x1[k1] = LXold[pairs[k1][0]];
-		y1[k1] = LYold[pairs[k1][0]];
-		x2[k1] = LXnew[pairs[k1][1]];
-		y2[k1] = LYnew[pairs[k1][1]];
-	}
-    //rot(LXold, LYold, mpu6050data.Gyro_z, 360);
-    //rot(LXnew, LYnew, mpu6050data.Gyro_z, 360);
-    //rottot+=mpu6050data.Gyro_z;
-
 	m0 = mismatch(x1, y1, x2, y2, num_pairs);
-    
     
 	xshfttot = 0;
 	yshfttot = 0;
@@ -192,7 +110,7 @@ void countXY(int LXold[ARR_LEN], int LYold[ARR_LEN], int Lold[ARR_LEN], int LXne
 	m = m0;
 	memcpy(x3, x2, ARR_LEN * sizeof(int));
 	memcpy(y3, y2, ARR_LEN * sizeof(int));
-    testmove(x1, y1, x3, y3, 0, 0, gyrochange, &m, &xshfttot, &yshfttot, &rottot, num_pairs);
+    //testmove(x1, y1, x3, y3, 0, 0, gyrochange, &m, &xshfttot, &yshfttot, &rottot, num_pairs);
     //printf("%f %d %d\n", mpu6050data.Gyro_z, m, m0);
     while (1)
 	{
@@ -217,12 +135,13 @@ void countXY(int LXold[ARR_LEN], int LYold[ARR_LEN], int Lold[ARR_LEN], int LXne
         }
 	}
 	//printf("xshft: %d, yshft: %d, rottot: %f\n", xshfttot, yshfttot, rottot);
-	*currentX += xshfttot;
+
+    //part temporarily not in use
+    *currentX += xshfttot;
 	*currentY += yshfttot;
 	*currentDEG += rottot;
     if (rottot < 0) rottot = 360 - rottot;
 }
-
 
 int pointpairs(int LXold[], int LYold[], int corners1[], int corners1_len, int LXnew[], int LYnew[], int corners2[], int corners2_len, int pairs[ARR_LEN][2], const int maxlength)
 {

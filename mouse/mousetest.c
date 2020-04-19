@@ -17,7 +17,7 @@
 * You should have received a copy of the GNU General Public License
 * along with lidar project.  If not, see https://www.gnu.org/licenses/ 
 */ 
-//compile with: g++ mousetest.c -lwiringPi -pthread mousetest
+//compile with: g++ -o mousetest mousetest.c -lwiringPi -pthread
 //be sure to have a mouse connected to the raspberry pi
 
 #include <wiringSerial.h>

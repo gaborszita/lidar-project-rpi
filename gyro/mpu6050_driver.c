@@ -86,7 +86,7 @@ void readMPU6050(mpu6050reads *data){
 	data->Gyro_z = read_raw_data(GYRO_ZOUT_H)/131.0*secchange;
 }
 
-#ifdef dddd
+#ifdef testingon
 int main(){
     mpu6050reads mpu6050data;
 	float Acc_x,Acc_y,Acc_z;

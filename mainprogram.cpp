@@ -40,11 +40,10 @@
 //#include <sys/time.h>
 //#include <time.h>
 AdafruitMotorsDriver motors;
+MouseDriver mouse;
 
 int main (int, const char **)
 {
-
-
     signal(SIGINT, ctrl_c_handler);
     sigignore(SIGPIPE);
     char buf[100000];
@@ -73,7 +72,7 @@ int main (int, const char **)
     bufptr+=strlen(bufptr)+1;
     send(socket, buf, bufptr-buf, 0);
 
-    mousethread_run(&heading);
+    mouse.mousethread_run(&heading);
     bufptr = buf; 
     sprintf(bufptr, "robotbox");
     bufptr+=strlen(bufptr)+1;
@@ -160,7 +159,7 @@ int main (int, const char **)
         //countXY(laserdataX[currentWriteLData == 0 ? 0 : 1], laserdataY[currentWriteLData == 0 ? 0 : 1], Ldeg[currentWriteLData == 0 ? 0 : 1], laserdataX[currentWriteLData == 0 ? 1 : 0], laserdataY[currentWriteLData == 0 ? 1 : 0], Ldeg[currentWriteLData == 0 ? 1 : 0], &x, &y, &heading, socket, buf, bufptr);
         readMPU6050(&mpu6050data);
         if (motors.isRobotMoving()) {
-            get_mouse_readings(&x, &y);
+            mouse.get_mouse_readings(&x, &y);
             heading+=mpu6050data.Gyro_z;
         }
 

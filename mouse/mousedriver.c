@@ -28,15 +28,17 @@
 #define mousedpcm 441  //dots per centimeter(dpcm) NOT dots per inch(DPI), convert DPI to dpcm by multiplying DPI by 0.393
 #define PI 3.14159265359
 
-int mousex=0; //global mouse x and y change
-int mousey=0;
+MouseDriver::MouseThreadingControl::MouseThreadingControl(float *heading, MouseDriver *md){
+    std::thread mousethread(mousethr, heading, md);
+    mousethread.detach(); //allow mouse thread to run by itself, because the program will continue on its own process
+}
 
-void get_mouse_readings(int *mx, int *my){ //function which shows mouse reading data
+void MouseDriver::get_mouse_readings(int *mx, int *my){ //function which shows mouse reading data
     *mx=round(mousex/mousedpcm);
     *my=round(mousey/mousedpcm);
 }
 
-int mouse(float *heading){
+int MouseDriver::MouseThreadingControl::mousethr(float *heading, MouseDriver *mobject){
     int fd;
     if ((fd = serialOpen ("/dev/input/mouse0", 115200)) < 0) //open mouse device
     {
@@ -83,20 +85,29 @@ int mouse(float *heading){
         int xchgcorr = xchg * cos(-*heading * PI / 180) - ychg * sin(-*heading * PI / 180);
         int ychgcorr = ychg * cos(-*heading * PI / 180) + xchg * sin(-*heading * PI / 180);
         //printf("%f\n", *heading);
-        mousex+=xchgcorr; //add x mouse change to global mouse x change variable
-        mousey+=ychgcorr; //add y mouse change to global mouse y change variable
+        mobject->mousex+=xchgcorr; //add x mouse change to global mouse x change variable
+        mobject->mousey+=ychgcorr; //add y mouse change to global mouse y change variable
         //printf("%d %d\n", ychg, mousey);
     }
 }
 
-int mousethread_run(float *heading){
-    std::thread mousethr(mouse, heading); //start mouse thread
+int MouseDriver::mousethread_run(float *heading){
+    MouseThreadingControl mtc(heading, this);
 
+
+
+    //test();
+    //mousethr(heading);
+    //std::thread mousethread(mousethr(), heading); //start mouse thread
+    //std::thread mousethread(mousethr, heading, this); //start mouse thread
+
+    //this->heading = &heading;
     //printf("mouse currently executing\n");
 
-    mousethr.detach(); //allow mouse thread to run by itself, because the program will continue on its own process
     
+
     return 0;
  
 }
+
 

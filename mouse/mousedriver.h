@@ -19,5 +19,23 @@
 */ 
 
 #define MOUSE_ALWAYS1_BIT_NOT1 5
-void get_mouse_readings(int *mx, int *my);
-int mousethread_run(float *heading);
+
+class MouseDriver{
+    private:
+        int mousex=0; //global mouse x and y change
+        int mousey=0; 
+        float **heading;
+
+    public:
+        void get_mouse_readings(int *mx, int *my);
+        int mousethread_run(float *heading);
+
+    private:
+        class MouseThreadingControl
+        {
+            public:
+            MouseThreadingControl(float *heading, MouseDriver *md);
+            static int mousethr(float *heading, MouseDriver *mobject);
+        };
+};
+

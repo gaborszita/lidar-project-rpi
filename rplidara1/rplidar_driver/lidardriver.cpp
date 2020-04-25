@@ -19,24 +19,16 @@
 */ 
 
 
-#include <stddef.h>
-#include "lidardriver.h"
-
-#include "rplidar.h"
 #include <stdio.h>
 #include <string.h>
+#include "lidardriver.h"
+
 
 //#define SCAN_FILE_DEBUG
 //#define numnodes 360
 #define ptcorrectdist 40
 
-using namespace rp::standalone::rplidar; 
-RPlidarDriver* lidar;
-rplidar_response_measurement_node_hq_t nodes[360];
-size_t numnodes = sizeof(nodes)/sizeof(rplidar_response_measurement_node_hq_t);
-std::vector<RplidarScanMode> scanModes;
-
-int setupLidar(){
+int LidarController::setupLidar(){
     lidar = RPlidarDriver::CreateDriver();
     u_result res = lidar->connect("/dev/ttyUSB0", 115200);
     if (IS_FAIL(res)) {
@@ -50,19 +42,19 @@ int setupLidar(){
     return 0;
 }
 
-int closeLidar(){
+int LidarController::closeLidar(){
     lidar->disconnect();
     RPlidarDriver::DisposeDriver(lidar);
     return 0;
 }
 
-float getLidarFreq(){
+float LidarController::getLidarFreq(){
     float freq=0;
     lidar->getFrequency(scanModes[0], numnodes, freq);
     return freq;
 }
 
-int getLidarScan(int vangles[360]){
+int LidarController::getLidarScan(int vangles[360]){
     //float vangles[360];
     memset(vangles, 0, sizeof(int)*360);
     int flagangles[360];

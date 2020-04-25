@@ -18,6 +18,8 @@
 * along with lidar project.  If not, see https://www.gnu.org/licenses/ 
 */ 
 
+#ifndef _MOTORS_H
+#define _MOTORS_H
 
 //void motorControl(int speeds[4]);
 //void Mhatreset();
@@ -32,11 +34,8 @@ class AdafruitMotorsDriver{
         Adafruit_DCMotor& M3= hat.getDC(3);
         Adafruit_DCMotor& M4= hat.getDC(4);
 
-    private:
-        bool robotmoving=false;
-
     public:
-        bool isRobotMoving();
+        bool robotMoving=false;
 
     private:
         void setMotorDir(int *speed, Adafruit_DCMotor& Motor);
@@ -47,3 +46,5 @@ class AdafruitMotorsDriver{
     public:
         void Mhatreset();
 };
+
+#endif

@@ -18,24 +18,29 @@
 * along with lidar project.  If not, see https://www.gnu.org/licenses/ 
 */ 
 
+#ifndef _MOUSEDRIVER_H
+#define _MOUSEDRIVER_H
+
 #define MOUSE_ALWAYS1_BIT_NOT1 5
+#define mousedpcm 441  //dots per centimeter(dpcm) NOT dots per inch(DPI), convert DPI to dpcm by multiplying DPI by 0.393
 
 class MouseDriver{
     private:
-        int mousex=0; //global mouse x and y change
-        int mousey=0; 
-        float **heading;
+        int *x=0; //global mouse x and y change
+        int *y=0; 
+        float *heading;
+        bool *isMoving;
 
     public:
-        void get_mouse_readings(int *mx, int *my);
-        int mousethread_run(float *heading);
+        int mousethread_run(float *heading, int *x, int *y, bool *isMoving);
 
     private:
         class MouseThreadingControl
         {
             public:
-            MouseThreadingControl(float *heading, MouseDriver *md);
-            static int mousethr(float *heading, MouseDriver *mobject);
+            MouseThreadingControl(MouseDriver *md);
+            static int mousethr(MouseDriver *mobject);
         };
 };
 
+#endif

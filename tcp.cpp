@@ -25,9 +25,6 @@
 
 #define SOCKET_ERROR -1
 
-#include "motors.h"
-#include "tcp.h"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -36,11 +33,12 @@
 #include <string.h>
 #include <sys/ioctl.h>
 
-char recvbuf[DEAFULT_BUFLEN];
-char * recvbufpointer = recvbuf;
-int recvbuflen;
 
-int Connect()
+#include "motors.h"
+#include "tcp.h"
+
+
+int TCP::Connect()
 {
     int server_fd, new_socket;
     struct sockaddr_in address;
@@ -81,64 +79,41 @@ int Connect()
         perror("accept");
         exit(EXIT_FAILURE);
     }
-    return new_socket;
-    /*while (true) {
-        printf("before\n");
-        recv(server_fd, recvbuf, DEAFULT_BUFLEN, 0);
-        printf("rbuf: %c\n", recvbuf[0]);
-        if(strcmp(recvbuf, "computer-hello")==0){
-
-            break;
-        }
-    }*/
-    return server_fd;
-    /*valread = read( new_socket , buffer, 1024);
-    printf("%s\n",buffer );
-    send(new_socket , hello , strlen(hello) , 0 );
-    printf("Hello message sent\n");*/
+    client=new_socket;
+    return 0; 
 }
 
-int tcpmsgreceive(int client)
+int TCP::tcpmsgreceive()
 {
-	// Read the first batch of the TcpServer response bytes.
-		//do {
-        ioctl(client, FIONREAD, &recvbuflen);
-        if (recvbuflen != 0) {
-            recvbuflen = recv(client, recvbuf, DEAFULT_BUFLEN, 0);
-        }
-        else{
-            recvbuf[0] = '\0';
-        }
-		if (recvbuflen == SOCKET_ERROR) {
-			printf("SOCKET_ERROR");
-			shutdown(client, 2);
-			return 1;
-		}
-		//} while(bytes==0);
-	/*if (iResult == 0) {
-	return;
-	}*/
+    ioctl(client, FIONREAD, &recvbuflen);
+    if (recvbuflen != 0) {
+        recvbuflen = recv(client, recvbuf, DEAFULT_BUFLEN, 0);
+    }
+    else{
+        recvbuf[0] = '\0';
+    }
+    if (recvbuflen == SOCKET_ERROR) {
+        printf("SOCKET_ERROR");
+        shutdown(client, 2);
+        return 1;
+    }
 	return 0;
-	// Close everything.
-	//stream.Close();
-	//client.Close();
 }
 
-void updaterecvbuffer(int client) {
+void TCP::updaterecvbuffer() {
 	if (recvbufpointer >= recvbuf + recvbuflen)
 	{
-		tcpmsgreceive(client);
+		tcpmsgreceive();
 		recvbufpointer = recvbuf;
 	}
 }
 
-bool tcpchangebuffer(char msgsearch[], int client)
+bool TCP::tcpchangebuffer(char msgsearch[])
 {
-	updaterecvbuffer(client);
+	updaterecvbuffer();
 	if (strcmp(recvbufpointer, msgsearch) == 0)
 	{
 		recvbufpointer += strlen(msgsearch) + 1;
-		//if (recvbufpointer >= recvbuf + recvbuflen - 1) printf("recvbufpointer overrun E %d", recvbufpointer);
 		return true;
 	}
 	else
@@ -147,38 +122,51 @@ bool tcpchangebuffer(char msgsearch[], int client)
 	}
 }
 
-int checkforrecv(int client, AdafruitMotorsDriver *motors){
+int TCP::checkforrecv(Navigation *navigation){
     
-    if (tcpchangebuffer((char*)"exitprogram", client))
+    if (tcpchangebuffer((char*)"exitprogram"))
 	{
 		
         exit(0);
 	}
-	else if (tcpchangebuffer((char*)"motorsrun", client))
+	else if (tcpchangebuffer((char*)"motorsrun"))
 	{
-        //printf("motorsrun\n");
         int speeds[4];
 
         sscanf(recvbufpointer, "%d", &speeds[0]);
-        //printf("%d\n", speed);
         recvbufpointer += strlen(recvbufpointer) + 1;
 
         sscanf(recvbufpointer, "%d", &speeds[1]);
-        //printf("%d\n", speed);
         recvbufpointer += strlen(recvbufpointer) + 1;
 
         sscanf(recvbufpointer, "%d", &speeds[2]);
-        //printf("%d\n", speed);
         recvbufpointer += strlen(recvbufpointer) + 1;
 
         sscanf(recvbufpointer, "%d", &speeds[3]);
-        //printf("%d\n", speed);
 		recvbufpointer += strlen(recvbufpointer) + 1;
 
-        motors->motorControl(speeds);
+        navigation->motorsRun(speeds);
 
         return 4;
 	}
     return 0;
 }
 
+void TCP::sendString(const char sendID[], const char sendMessage[], char buf[100000], char* bufptr){
+    bufptr = buf; 
+    sprintf(bufptr, sendID);
+    bufptr+=strlen(bufptr)+1;
+    sprintf(bufptr, sendMessage);
+    bufptr+=strlen(bufptr)+1;
+    send(client, buf, bufptr-buf, 0);
+}
+
+int TCP::sendData(char buf[], int len)
+{
+    if(!send(client, buf, len, 0))
+    {
+        printf("tcp send failed\n");
+        return 1;
+    }
+    return 0;
+}

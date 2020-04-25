@@ -18,8 +18,29 @@
 * along with lidar project.  If not, see https://www.gnu.org/licenses/ 
 */ 
 
+#ifndef _LIDARDRIVER_H
+#define _LIDARDRIVER_H
 
-int setupLidar();
-int closeLidar();
-float getLidarFreq();
-int getLidarScan(int vangles[360]);
+#ifndef  _STDIO_H
+#include <stdio.h>
+#endif
+#include "rplidar.h"
+using namespace rp::standalone::rplidar; 
+
+class LidarController{
+private:
+    
+    RPlidarDriver* lidar;
+    rplidar_response_measurement_node_hq_t nodes[360];
+    size_t numnodes = sizeof(nodes)/sizeof(rplidar_response_measurement_node_hq_t);
+    std::vector<RplidarScanMode> scanModes;
+
+public:
+    int setupLidar();
+    int closeLidar();
+    float getLidarFreq();
+    int getLidarScan(int vangles[360]);
+
+};
+
+#endif

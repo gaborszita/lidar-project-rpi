@@ -34,10 +34,6 @@ void AdafruitMotorsDriver::setMotorDir(int *speed, Adafruit_DCMotor& Motor){
     }
 }
 
-bool AdafruitMotorsDriver::isRobotMoving(){
-    return robotmoving;
-}
-
 void AdafruitMotorsDriver::motorControl(int speeds[4]){
     //printf("%d %d %d %d\n", speeds[0], speeds[1], speeds[2], speeds[3]);
     setMotorDir(&speeds[0], M1);
@@ -52,10 +48,10 @@ void AdafruitMotorsDriver::motorControl(int speeds[4]){
     setMotorDir(&speeds[3], M4);
     M4.setSpeed(speeds[3]);
     if (speeds[0]!=0 || speeds[1]!=0 || speeds[2]!=0 || speeds[3]!=0) {
-        robotmoving=true;
+        robotMoving=true;
     }
     else{
-        robotmoving=false;
+        robotMoving=false;
     }
 }
 

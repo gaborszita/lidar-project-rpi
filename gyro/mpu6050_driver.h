@@ -18,6 +18,8 @@
 * along with lidar project.  If not, see https://www.gnu.org/licenses/ 
 */ 
 
+#ifndef _MPU6050_DRIVER_H
+#define _MPU6050_DRIVER_H
 
 struct mpu6050reads{
     float Acc_x=0;
@@ -27,5 +29,18 @@ struct mpu6050reads{
     float Gyro_y=0;
     float Gyro_z=0;
 };
-void readMPU6050(mpu6050reads *data);
-void MPU6050_Init();
+class MPU6050Driver{
+private:
+    int timeold=0;
+
+private:
+    short read_raw_data(int addr);
+    void ms_delay(int val);
+
+public:
+    void readMPU6050(mpu6050reads *data);
+    int MPU6050_Init();
+    void resetTimeOld();
+};
+
+#endif

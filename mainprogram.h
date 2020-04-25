@@ -37,7 +37,6 @@ void sync_with_lidar();
 unsigned int calcchecksum(unsigned int data[]);
 //void sync_with_lidar();
 //int uartread();
-int checkforrecv(int client);
 unsigned int calcchecksum(unsigned int data[]);
 void ctrl_c_handler(int s);
 //void countXY(int LXnew[], int LYnew[], int LXold[], int LYold[], int *x, int *y, int *heading);

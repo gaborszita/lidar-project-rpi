@@ -97,7 +97,7 @@ int main (int, const char **)
 
     while (true) {
         //send speed to computer
-        speed = navigation.lidarDevice.getLidarFreq();
+        speed = navigation.lidarDevice->getLidarFreq();
         bufptr = buf;
         sprintf(bufptr, "rpm");
         bufptr+=strlen(bufptr)+1;
@@ -106,7 +106,7 @@ int main (int, const char **)
         tcp.sendData(buf, bufptr-buf);
 
         //process lidar "garphics" readings
-        navigation.lidarDevice.getLidarScan(Ldeg[currentWriteLData]);
+        navigation.lidarDevice->getLidarScan(Ldeg[currentWriteLData]);
         for (int i=0; i<360; i++) {
             float phi_rad = (float)i * PI / 180;
             int r = Ldeg[currentWriteLData][i];

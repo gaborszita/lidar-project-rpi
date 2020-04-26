@@ -28,11 +28,11 @@
 
 class AdafruitMotorsDriver{
     private: 
-        Adafruit_MotorHAT hat;
-        Adafruit_DCMotor& M1= hat.getDC(1);
-        Adafruit_DCMotor& M2= hat.getDC(2);
-        Adafruit_DCMotor& M3= hat.getDC(3);
-        Adafruit_DCMotor& M4= hat.getDC(4);
+        Adafruit_MotorHAT *hat;
+        Adafruit_DCMotor* M1;
+        Adafruit_DCMotor* M2;
+        Adafruit_DCMotor* M3;
+        Adafruit_DCMotor* M4;
 
     public:
         bool robotMoving=false;
@@ -41,9 +41,9 @@ class AdafruitMotorsDriver{
         void setMotorDir(int *speed, Adafruit_DCMotor& Motor);
 
     public:
+        AdafruitMotorsDriver();
+        ~AdafruitMotorsDriver();
         void motorControl(int speeds[4]);
-
-    public:
         void Mhatreset();
 };
 

@@ -18,11 +18,27 @@
 * along with lidar project.  If not, see https://www.gnu.org/licenses/ 
 */ 
 
-
+#include <stdio.h>
 //#include "AdafruitStepperMotorHAT_CPP/Adafruit_MotorHAT.h"
 #include "motors.h"
-//#include <stdio.h>
 
+AdafruitMotorsDriver::AdafruitMotorsDriver()
+{
+    hat=new Adafruit_MotorHAT;
+    M1= &hat->getDC(1);
+    M2= &hat->getDC(2);
+    M3= &hat->getDC(3);
+    M4= &hat->getDC(4);
+}
+
+AdafruitMotorsDriver::~AdafruitMotorsDriver()
+{
+    delete hat;
+    delete M1;
+    delete M2;
+    delete M3;
+    delete M4;
+}
 
 void AdafruitMotorsDriver::setMotorDir(int *speed, Adafruit_DCMotor& Motor){
     if (*speed<0) {
@@ -36,17 +52,17 @@ void AdafruitMotorsDriver::setMotorDir(int *speed, Adafruit_DCMotor& Motor){
 
 void AdafruitMotorsDriver::motorControl(int speeds[4]){
     //printf("%d %d %d %d\n", speeds[0], speeds[1], speeds[2], speeds[3]);
-    setMotorDir(&speeds[0], M1);
-    M1.setSpeed(speeds[0]);
+    setMotorDir(&speeds[0], *M1);
+    M1->setSpeed(speeds[0]);
 
-    setMotorDir(&speeds[1], M2);
-    M2.setSpeed(speeds[1]);
+    setMotorDir(&speeds[1], *M2);
+    M2->setSpeed(speeds[1]);
 
-    setMotorDir(&speeds[2], M3);
-    M3.setSpeed(speeds[2]);
+    setMotorDir(&speeds[2], *M3);
+    M3->setSpeed(speeds[2]);
 
-    setMotorDir(&speeds[3], M4);
-    M4.setSpeed(speeds[3]);
+    setMotorDir(&speeds[3], *M4);
+    M4->setSpeed(speeds[3]);
     if (speeds[0]!=0 || speeds[1]!=0 || speeds[2]!=0 || speeds[3]!=0) {
         robotMoving=true;
     }
@@ -56,5 +72,5 @@ void AdafruitMotorsDriver::motorControl(int speeds[4]){
 }
 
 void AdafruitMotorsDriver::Mhatreset(){
-    hat.resetAll();
+    hat->resetAll();
 }

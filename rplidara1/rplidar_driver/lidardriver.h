@@ -21,13 +21,12 @@
 #ifndef _LIDARDRIVER_H
 #define _LIDARDRIVER_H
 
-#ifndef  _STDIO_H
-#include <stdio.h>
-#endif
 #include "rplidar.h"
 using namespace rp::standalone::rplidar; 
 
-class LidarController{
+
+class LidarController
+{
 private:
     
     RPlidarDriver* lidar;
@@ -38,6 +37,8 @@ private:
 public:
     int setupLidar();
     int closeLidar();
+
+public:
     float getLidarFreq();
     int getLidarScan(int vangles[360]);
 

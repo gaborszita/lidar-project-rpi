@@ -24,6 +24,8 @@
 #define MOUSE_ALWAYS1_BIT_NOT1 5
 #define mousedpcm 441  //dots per centimeter(dpcm) NOT dots per inch(DPI), convert DPI to dpcm by multiplying DPI by 0.393
 
+class Navigation;
+
 class MouseDriver{
     private:
         int *x=0; //global mouse x and y change

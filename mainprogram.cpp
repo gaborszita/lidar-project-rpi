@@ -35,9 +35,8 @@
 #include "mouse/mousedriver.h"
 #include "navigation.h"
 
-
 Navigation navigation;
-TCP tcp;
+
 
 int main (int, const char **)
 {
@@ -45,6 +44,7 @@ int main (int, const char **)
     sigignore(SIGPIPE);
     char buf[100000];
     char* bufptr;
+    TCP tcp;
     tcp.Connect();
     bufptr = buf;
     sprintf(bufptr, "robotbox");
@@ -97,16 +97,16 @@ int main (int, const char **)
 
     while (true) {
         //send speed to computer
-        speed = navigation.lidarDevice->getLidarFreq();
+        speed = navigation.lidarDevice.getLidarFreq();
         bufptr = buf;
         sprintf(bufptr, "rpm");
         bufptr+=strlen(bufptr)+1;
-        sprintf(bufptr, "%f", speed);
+        sprintf(bufptr, "%f", speed*60);
         bufptr+=strlen(bufptr)+1;
         tcp.sendData(buf, bufptr-buf);
 
         //process lidar "garphics" readings
-        navigation.lidarDevice->getLidarScan(Ldeg[currentWriteLData]);
+        navigation.lidarDevice.getLidarScan(Ldeg[currentWriteLData]);
         for (int i=0; i<360; i++) {
             float phi_rad = (float)i * PI / 180;
             int r = Ldeg[currentWriteLData][i];
@@ -136,7 +136,8 @@ int main (int, const char **)
         tcp.sendData(buf, bufptr-buf);
 
         //countXY(laserdataX[currentWriteLData == 0 ? 0 : 1], laserdataY[currentWriteLData == 0 ? 0 : 1], Ldeg[currentWriteLData == 0 ? 0 : 1], laserdataX[currentWriteLData == 0 ? 1 : 0], laserdataY[currentWriteLData == 0 ? 1 : 0], Ldeg[currentWriteLData == 0 ? 1 : 0], &x, &y, &heading, socket, buf, bufptr);
-        navigation.update();
+        /*navigation.update();
+
 
         bufptr = buf;
         sprintf(bufptr, "xyupdate");
@@ -147,7 +148,7 @@ int main (int, const char **)
         bufptr+=strlen(bufptr)+1;
         sprintf(bufptr, "%f", navigation.getHeading());
         bufptr+=strlen(bufptr)+1;
-        tcp.sendData(buf, bufptr-buf);
+        tcp.sendData(buf, bufptr-buf);*/
 
         currentWriteLData = currentWriteLData == 0 ? 1 : 0;
         if (errno == EPIPE || errno == ENOBUFS) {

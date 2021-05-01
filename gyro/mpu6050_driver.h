@@ -38,7 +38,7 @@ private:
     void ms_delay(int val);
 
 public:
-    void readMPU6050(mpu6050reads *data);
+    void readMPU6050(mpu6050reads& data);
     int MPU6050_Init();
     void resetTimeOld();
 };

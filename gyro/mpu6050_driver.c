@@ -70,7 +70,7 @@ void MPU6050Driver::resetTimeOld(){
     timeold = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-void MPU6050Driver::readMPU6050(mpu6050reads *data){
+void MPU6050Driver::readMPU6050(mpu6050reads& data){
     int msnow = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     int mschange;
     if (timeold!=0) {
@@ -83,12 +83,12 @@ void MPU6050Driver::readMPU6050(mpu6050reads *data){
     }
     float secchange = (float)mschange/1000;
     //printf("old: %d, now: %d, mschg: %d, secchange: %f\n", timeold, msnow, mschange, secchange);
-    data->Acc_x = read_raw_data(ACCEL_XOUT_H)/16384.0*secchange;
-	data->Acc_y = read_raw_data(ACCEL_YOUT_H)/16384.0*secchange;
-	data->Acc_z = read_raw_data(ACCEL_ZOUT_H)/16384.0*secchange;
+    data.Acc_x = read_raw_data(ACCEL_XOUT_H)/16384.0*secchange;
+	data.Acc_y = read_raw_data(ACCEL_YOUT_H)/16384.0*secchange;
+	data.Acc_z = read_raw_data(ACCEL_ZOUT_H)/16384.0*secchange;
 	
-	data->Gyro_x = read_raw_data(GYRO_XOUT_H)/131.0*secchange;
-	data->Gyro_y = read_raw_data(GYRO_YOUT_H)/131.0*secchange;
-	data->Gyro_z = read_raw_data(GYRO_ZOUT_H)/131.0*secchange;
+	data.Gyro_x = read_raw_data(GYRO_XOUT_H)/131.0*secchange;
+	data.Gyro_y = read_raw_data(GYRO_YOUT_H)/131.0*secchange;
+	data.Gyro_z = read_raw_data(GYRO_ZOUT_H)/131.0*secchange-0.025;
 }
 

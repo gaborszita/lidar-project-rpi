@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 LD=g++
 HEADERFILES= -I gyro -I rplidara1/rplidar_sdk/sdk/sdk/include -I rplidara1/rplidar_sdk/sdk/sdk/src
-CXXFLAGS= -c -Wall $(HEADERFILES)
+CXXFLAGS= -c -Wall $(HEADERFILES) -g
 LDFLAGS= -lwiringPi -lpthread -lcrypt -lrt -Wall -std=c++11
 OBJS=countXY.o tcp.o mainprogram.o motors.o lidardriver.o mpu6050_driver.o mousedriver.o navigation.o
 STATICOBJS=AdafruitStepperMotorHAT_CPP/AdafruitDCMotorHAT.a rplidara1/rplidar_sdk/sdk/output/Linux/Release/librplidar_sdk.a

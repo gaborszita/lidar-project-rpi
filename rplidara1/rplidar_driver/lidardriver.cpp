@@ -29,20 +29,25 @@
 #define ptcorrectdist 40
 
 int LidarController::setupLidar(){
+    u_result res;
     lidar = RPlidarDriver::CreateDriver();
-    u_result res = lidar->connect("/dev/ttyUSB0", 115200);
+    res = lidar->connect("/dev/ttyUSB0", 115200);
     if (IS_FAIL(res)) {
-        printf("CRITICAL_CANNOT_CONNECT_TO_LIDAR");
+        printf("CRITICAL_CANNOT_CONNECT_TO_LIDAR\n");
         return 1;
     }
     lidar->startMotor();
-
-    lidar->getAllSupportedScanModes(scanModes);
+    res = lidar->getAllSupportedScanModes(scanModes);
+    if (IS_FAIL(res)) {
+        printf("CRITICAL_CANNOT_GET_SUPPORTED_SCAN_MODES\n");
+        return 1;
+    }
     lidar->startScanExpress(false, scanModes[0].id);
     return 0;
 }
 
 int LidarController::closeLidar(){
+    //lidar->stopMotor();
     lidar->disconnect();
     RPlidarDriver::DisposeDriver(lidar);
     return 0;

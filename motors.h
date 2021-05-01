@@ -28,7 +28,7 @@
 
 class AdafruitMotorsDriver{
     private: 
-        Adafruit_MotorHAT *hat;
+        Adafruit_MotorHAT hat;
         Adafruit_DCMotor* M1;
         Adafruit_DCMotor* M2;
         Adafruit_DCMotor* M3;
@@ -42,7 +42,6 @@ class AdafruitMotorsDriver{
 
     public:
         AdafruitMotorsDriver();
-        ~AdafruitMotorsDriver();
         void motorControl(int speeds[4]);
         void Mhatreset();
 };

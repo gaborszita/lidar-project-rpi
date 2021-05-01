@@ -24,20 +24,10 @@
 
 AdafruitMotorsDriver::AdafruitMotorsDriver()
 {
-    hat=new Adafruit_MotorHAT;
-    M1= &hat->getDC(1);
-    M2= &hat->getDC(2);
-    M3= &hat->getDC(3);
-    M4= &hat->getDC(4);
-}
-
-AdafruitMotorsDriver::~AdafruitMotorsDriver()
-{
-    delete hat;
-    delete M1;
-    delete M2;
-    delete M3;
-    delete M4;
+    M1= &hat.getDC(1);
+    M2= &hat.getDC(2);
+    M3= &hat.getDC(3);
+    M4= &hat.getDC(4);
 }
 
 void AdafruitMotorsDriver::setMotorDir(int *speed, Adafruit_DCMotor& Motor){
@@ -72,5 +62,5 @@ void AdafruitMotorsDriver::motorControl(int speeds[4]){
 }
 
 void AdafruitMotorsDriver::Mhatreset(){
-    hat->resetAll();
+    hat.resetAll();
 }
